@@ -35,6 +35,12 @@ public class VirtualCdj extends LifecycleParticipant {
     private static final Logger logger = LoggerFactory.getLogger(VirtualCdj.class);
 
     /**
+     * The device name reported by the AlphaTheta XDJ-AZ, which needs the same rekordbox-proxying compatibility
+     * mode as the Opus Quad in order to receive player status.
+     */
+    public static final String XDJ_AZ_NAME = "XDJ-AZ";
+
+    /**
      * The port to which other devices will send status update messages.
      */
     @API(status = API.Status.STABLE)
@@ -1116,9 +1122,11 @@ public class VirtualCdj extends LifecycleParticipant {
                     return false;
                 }
 
-                // See if there is an Opus Quad on the network, which means we need to be in the limited compatibility mode.
+                // See if there is an Opus Quad (or an XDJ-AZ) on the network, which means we need to be in the limited
+                // compatibility mode. The XDJ-AZ assigns us a player number as a mixer but never sends CDJ status
+                // packets to an ordinary virtual player; posing as rekordbox makes it send full status for all decks.
                 for (DeviceAnnouncement device : DeviceFinder.getInstance().getCurrentDevices()) {
-                    if (device.isOpusQuad) {
+                    if (device.isOpusQuad || XDJ_AZ_NAME.equals(device.getDeviceName())) {
                         proxyingForVirtualRekordbox.set(true);
                         VirtualRekordbox.getInstance().addLifecycleListener(virtualRekordboxLifecycleListener);
                         final boolean success = VirtualRekordbox.getInstance().start();
