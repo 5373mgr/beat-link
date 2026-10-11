@@ -738,6 +738,11 @@ public class VirtualCdj extends LifecycleParticipant {
      *                       device number we are using
      */
     void defendDeviceNumber(InetAddress invaderAddress) {
+        if (proxyingForVirtualRekordbox.get()) {
+            // We are not actually using a player number of our own (VirtualRekordbox is on the network for us), so
+            // there is nothing to defend; the "invader" is just a real deck with the number we had configured.
+            return;
+        }
         final DatagramSocket currentSocket = socket.get();
         if (currentSocket == null) {
             logger.warn("Went offline before we could defend our device number.");
