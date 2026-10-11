@@ -242,8 +242,10 @@ public class ConnectionManager extends LifecycleParticipant {
     private final DeviceAnnouncementListener announcementListener = new DeviceAnnouncementListener() {
         @Override
         public void deviceFound(final DeviceAnnouncement announcement) {
-            if (VirtualCdj.getInstance().inOpusQuadCompatibilityMode()) {
-                logger.debug("Nothing to do when new devices found in Opus Quad compatibility mode.");
+            if (VirtualCdj.getInstance().inOpusQuadCompatibilityMode() && !"rekordbox".equals(announcement.getDeviceName())) {
+                // A real rekordbox instance can still serve metadata for tracks the XDJ-AZ loads from its collection
+                // over the network, so we keep asking it for its database server port.
+                logger.debug("Nothing to do when new non-rekordbox devices found in Opus Quad compatibility mode.");
                 return;
             }
             if (announcement.getDeviceNumber() == 25 && announcement.getDeviceName().equals("NXS-GW")) {
