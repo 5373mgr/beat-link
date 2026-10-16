@@ -441,7 +441,11 @@ public class ConnectionManager extends LifecycleParticipant {
     private int chooseAskingPlayerNumber(DeviceAnnouncement targetPlayer) {
         final int fakeDevice = VirtualCdj.getInstance().getDeviceNumber();
 
-        if (fakeDevice > 4 && !DeviceFinder.getInstance().isDeviceMetadataLimited(targetPlayer)) {
+        // Posing as the target's own number works for CDJ-3000s, but rekordbox (numbers above 15) rejects a client
+        // claiming to be rekordbox itself with a teardown in response to the setup message, so for rekordbox we
+        // fall through and use our own number instead.
+        if (fakeDevice > 4 && targetPlayer.getDeviceNumber() <= 15 &&
+                !DeviceFinder.getInstance().isDeviceMetadataLimited(targetPlayer)) {
             return targetPlayer.getDeviceNumber();
         }
 
